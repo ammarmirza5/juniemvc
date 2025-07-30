@@ -1,44 +1,56 @@
 package com.vhouse.juniemvc.services;
 
+import com.vhouse.juniemvc.dtos.BeerDto;
 import com.vhouse.juniemvc.entities.Beer;
+import com.vhouse.juniemvc.mappers.BeerMapper;
 import com.vhouse.juniemvc.repositories.BeerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BeerServiceImpl implements BeerService {
     
     private final BeerRepository beerRepository;
+    private final BeerMapper beerMapper;
     
-    public BeerServiceImpl(BeerRepository beerRepository) {
+    public BeerServiceImpl(BeerRepository beerRepository, BeerMapper beerMapper) {
         this.beerRepository = beerRepository;
+        this.beerMapper = beerMapper;
     }
     
     @Override
-    public List<Beer> findAll() {
-        return beerRepository.findAll();
+    public List<BeerDto> findAll() {
+        return beerRepository.findAll().stream()
+                .map(beerMapper::beerToBeerDto)
+                .collect(Collectors.toList());
     }
     
     @Override
-    public Optional<Beer> findById(Integer id) {
-        return beerRepository.findById(id);
+    public Optional<BeerDto> findById(Integer id) {
+        return beerRepository.findById(id)
+                .map(beerMapper::beerToBeerDto);
     }
     
     @Override
-    public Beer save(Beer beer) {
-        return beerRepository.save(beer);
+    public BeerDto save(BeerDto beerDto) {
+        Beer beer = beerMapper.beerDtoToBeer(beerDto);
+        Beer savedBeer = beerRepository.save(beer);
+        return beerMapper.beerToBeerDto(savedBeer);
     }
     
     @Override
-    public Beer update(Integer id, Beer beer) {
+    public BeerDto update(Integer id, BeerDto beerDto) {
         if (!beerRepository.existsById(id)) {
             return null;
         }
         
+        Beer beer = beerMapper.beerDtoToBeer(beerDto);
         beer.setId(id);
-        return beerRepository.save(beer);
+        Beer updatedBeer = beerRepository.save(beer);
+        return beerMapper.beerToBeerDto(updatedBeer);
     }
     
     @Override

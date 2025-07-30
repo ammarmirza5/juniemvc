@@ -1,6 +1,6 @@
 package com.vhouse.juniemvc.controllers;
 
-import com.vhouse.juniemvc.entities.Beer;
+import com.vhouse.juniemvc.dtos.BeerDto;
 import com.vhouse.juniemvc.services.BeerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,33 +20,33 @@ public class BeerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Beer>> listBeers() {
+    public ResponseEntity<List<BeerDto>> listBeers() {
         return new ResponseEntity<>(beerService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{beerId}")
-    public ResponseEntity<Beer> getBeerById(@PathVariable("beerId") Integer id) {
-        Optional<Beer> beerOptional = beerService.findById(id);
+    public ResponseEntity<BeerDto> getBeerById(@PathVariable("beerId") Integer id) {
+        Optional<BeerDto> beerOptional = beerService.findById(id);
         
         return beerOptional
-                .map(beer -> new ResponseEntity<>(beer, HttpStatus.OK))
+                .map(beerDto -> new ResponseEntity<>(beerDto, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
-    public ResponseEntity<Beer> createBeer(@RequestBody Beer beer) {
-        Beer savedBeer = beerService.save(beer);
-        return new ResponseEntity<>(savedBeer, HttpStatus.CREATED);
+    public ResponseEntity<BeerDto> createBeer(@RequestBody BeerDto beerDto) {
+        BeerDto savedBeerDto = beerService.save(beerDto);
+        return new ResponseEntity<>(savedBeerDto, HttpStatus.CREATED);
     }
     
     @PutMapping("/{beerId}")
-    public ResponseEntity<Beer> updateBeer(@PathVariable("beerId") Integer id, @RequestBody Beer beer) {
+    public ResponseEntity<BeerDto> updateBeer(@PathVariable("beerId") Integer id, @RequestBody BeerDto beerDto) {
         if (!beerService.exists(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        Beer updatedBeer = beerService.update(id, beer);
-        return new ResponseEntity<>(updatedBeer, HttpStatus.OK);
+        BeerDto updatedBeerDto = beerService.update(id, beerDto);
+        return new ResponseEntity<>(updatedBeerDto, HttpStatus.OK);
     }
     
     @DeleteMapping("/{beerId}")
