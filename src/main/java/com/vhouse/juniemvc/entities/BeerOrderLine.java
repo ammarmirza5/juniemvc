@@ -1,24 +1,22 @@
 package com.vhouse.juniemvc.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Version;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -26,7 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Beer {
+public class BeerOrderLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,15 +33,15 @@ public class Beer {
     @Version
     private Integer version;
 
-    private String beerName;
-    private String beerStyle;
-    private String upc;
-    private Integer quantityOnHand;
-    private BigDecimal price;
+    private Integer orderQuantity;
 
-    @OneToMany(mappedBy = "beer")
-    @Builder.Default
-    private Set<BeerOrderLine> beerOrderLines = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "beer_order_id")
+    private BeerOrder beerOrder;
+
+    @ManyToOne
+    @JoinColumn(name = "beer_id")
+    private Beer beer;
 
     @Column(updatable = false)
     private LocalDateTime createdDate;

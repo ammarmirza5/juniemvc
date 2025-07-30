@@ -1,21 +1,22 @@
 package com.vhouse.juniemvc.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Version;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +27,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Beer {
+public class BeerOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,13 +36,14 @@ public class Beer {
     @Version
     private Integer version;
 
-    private String beerName;
-    private String beerStyle;
-    private String upc;
-    private Integer quantityOnHand;
-    private BigDecimal price;
+    private String orderStatus;
+    private String orderNumber;
 
-    @OneToMany(mappedBy = "beer")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @OneToMany(mappedBy = "beerOrder")
     @Builder.Default
     private Set<BeerOrderLine> beerOrderLines = new HashSet<>();
 
@@ -60,5 +62,19 @@ public class Beer {
     @PreUpdate
     public void preUpdate() {
         this.updateDate = LocalDateTime.now();
+    }
+
+    /**
+     * Convenience method to add a beer order line to this order
+     * @param beerOrderLine The beer order line to add
+     */
+    public void addBeerOrderLine(BeerOrderLine beerOrderLine) {
+        if (beerOrderLine != null) {
+            if (beerOrderLines == null) {
+                beerOrderLines = new HashSet<>();
+            }
+            beerOrderLines.add(beerOrderLine);
+            beerOrderLine.setBeerOrder(this);
+        }
     }
 }
